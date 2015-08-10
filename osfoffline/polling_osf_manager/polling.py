@@ -264,7 +264,6 @@ class Poll(object):
                     local,
                     remote,
                     local_parent_file_folder=None,
-                    local_node=local_node
                 )
             except Exception as e:
                 logging.warning(e)
@@ -273,8 +272,7 @@ class Poll(object):
     def _check_file_folder(self,
                            local_file_folder,
                            remote_file_folder,
-                           local_parent_file_folder,
-                           local_node):
+                           local_parent_file_folder):
         """
         VARIOUS STATES (update as neccessary):
         (None, None) -> Error                                     --
@@ -302,11 +300,10 @@ class Poll(object):
                 local_file_folder = yield from self.create_local_file_folder(
                     remote_file_folder,
                     local_parent_file_folder,
-                    local_node
                 )
         elif local_file_folder.locally_created and remote_file_folder is None:
             if not local_file_folder.is_provider:
-                remote_file_folder = yield from self.create_remote_file_folder(local_file_folder, local_node)
+                remote_file_folder = yield from self.create_remote_file_folder(local_file_folder)
             return
         elif local_file_folder.locally_created and remote_file_folder is not None:
             raise ValueError('newly created local file_folder was already on server for some reason. why? fixit!')
@@ -350,7 +347,6 @@ class Poll(object):
                         local,
                         remote,
                         local_parent_file_folder=local_file_folder,
-                        local_node=local_node
                     )
             except ConnectionError:
                 pass
@@ -384,13 +380,13 @@ class Poll(object):
 
 
     @asyncio.coroutine
-    def create_local_file_folder(self, remote_file_folder, local_parent_folder, local_node):
+    def create_local_file_folder(self, remote_file_folder, local_parent_folder):
         logging.info('creating local file folder')
         assert remote_file_folder is not None
         assert isinstance(remote_file_folder, RemoteFileFolder)
         assert isinstance(local_parent_folder, File) or local_parent_folder is None
         assert local_parent_folder is None or (local_parent_folder.is_folder)
-        assert isinstance(local_node, Node)
+
 
         # NOTE: develop is not letting me download files. dont know why.
 
@@ -404,7 +400,7 @@ class Poll(object):
             osf_path=remote_file_folder.id,
             user=self.user,
             parent=local_parent_folder,
-            node=local_node
+            node=local_parent_folder.node
         )
         save(session, new_file_folder)
 
@@ -424,12 +420,10 @@ class Poll(object):
         return new_file_folder
 
     @asyncio.coroutine
-    def create_remote_file_folder(self, local_file_folder, local_node):
+    def create_remote_file_folder(self, local_file_folder):
         logging.info('create_remote_file_folder')
         assert local_file_folder is not None
         assert isinstance(local_file_folder, File)
-        assert local_node is not None
-        assert isinstance(local_node, Node)
         assert local_file_folder.locally_created
 
 

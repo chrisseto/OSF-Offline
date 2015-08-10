@@ -72,7 +72,8 @@ def warn(message):
 def info(file_name, action):
     global show_alerts
     global last_alert_time
-    # alert_menu_icon.setText(0, str(datetime.now()))
+    global alert_menu_icon
+    alert_menu_icon.setText(0, str(datetime.now()))
     if (alert_icon is None) or (not show_alerts):
         return
     else:
