@@ -118,11 +118,12 @@ def login():
     return redirect(authorization_url)
 
 
-@app.route('/callback/', methods=['GET'])
+@app.route('/oauth_callback/', methods=['GET'])
 def callback():
     """The oauth app redirects the user here; perform logic to fetch access token and redirect to a target url"""
     osf = OAuth2Session(CLIENT_ID, redirect_uri=REDIRECT_URI, state=session['oauth_state'])
     auth_response = request.url
+
 
     # TODO: The token request fails (with CAS errors) when redirect_uri is not specified; is this a CAS bug?
     token = osf.fetch_token(TOKEN_REQUEST_URL,
@@ -177,7 +178,7 @@ if __name__ == '__main__':
     base.args['response_type'] = 'token'
     base.args['client_id'] = CLIENT_ID
     base.args['redirect_uri'] = REDIRECT_URI
-    base.args['scope'] = 'user.profile'
+    base.args['scope'] = 'osf.full_read'
     base.args['state'] = 'randomphrase'
     # base.args['access_type'] = 'offline'
     # base.args['approval_prompt'] = 'force'

@@ -78,6 +78,8 @@ class BackgroundWorker(threading.Thread):
 
     def stop_loop(self, close=False):
         logging.info('stop loop')
+        from osfoffline.utils.debug import debug_trace
+        debug_trace()
         if self.loop.is_closed():
             logging.info('loop already closed so dont care')
 
@@ -87,7 +89,7 @@ class BackgroundWorker(threading.Thread):
         else:
             # stop loop when current tasks finish.
             self.loop.call_soon(self.loop.stop)
-            logging.info('call_soon to loop.stop. will stop when polling/observing events finish.')
+            logging.info('call_soon to loop.stop. Will stop when polling/observing events finish.')
             # todo: find better way?
             if close:
                 while not self.loop.is_closed():
